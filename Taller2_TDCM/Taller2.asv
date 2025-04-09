@@ -1,0 +1,97 @@
+
+% FUCION DE TRANSFERENCIA
+
+num=3;
+den=[1 2 3];
+Gs=tf(num,den);
+
+figure("Name", "Respuesta al Impulso y Escalon")
+% Respuesta al Impulso
+subplot(2,1,1);
+impulse(Gs);
+% Respuesa al Escalon
+subplot(2,1,2);
+step(Gs);
+
+% Vectores de valores
+% Impulso
+[y_impulse, t_impulse] = impulse(Gs);
+% Escalón
+[y_step, t_step] = step(Gs);
+
+% FUCION DE TRANSFERENCIA CON RESTRASO
+
+Gs_delayed = tf(num,den, 'InputDelay', 2);
+
+figure("Name", "Respuesta al Impulso y Escalon con Retraso")
+% Respuesta al Impulso
+subplot(2,1,1);
+impulse(Gs_delayed);
+% Respuesa al Escalon
+subplot(2,1,2);
+step(Gs_delayed);
+
+% Vectores de valores
+% Impulso
+[y_impulse_delayed, t_impulse_delayed] = impulse(Gs_delayed);
+% Escalón
+[y_step_delayed, t_step_delayed] = step(Gs_delayed);
+
+% PUNTOS MAXIMOS
+
+% Impulso
+y_impulse_max = max(y_impulse)
+t_impulse_max = t_impulse(find(y_impulse == y_impulse_max) + 1)
+% Escalón
+y_step_max = max(y_step)
+t_step_max = t_step(find(y_step == y_step_max) + 1)
+
+% Impulso con Retraso
+y_impulse_delayed_max = max(y_impulse_delayed)
+t_impulse_delayed_max = t_impulse_delayed(find(y_impulse_delayed == y_impulse_delayed_max) + 1)
+% Escalón con Retraso
+y_step_delayed_max = max(y_step_delayed)
+t_step_delayed_max = t_step_delayed(find(y_step_delayed == y_step_delayed_max) + 1)
+
+figure("Name", "Respuesta al Impulso y Escalón con y sin Retraso y Maximos");
+subplot(2,1,1);
+hold on;
+grid on;
+plot(t_impulse, y_impulse, 'b-');
+plot(t_step, y_step, 'b-');
+hold off;
+
+
+
+
+ts = 0.1;
+t = 0:ts:30;
+t = t';
+
+N = length(t);
+
+
+
+
+
+
+
+size_y = int32(N/5);
+
+% Señal Arbitraria
+s1 = linspace(0, 3, size_y);
+s2 = ones(1, size_y)*3;
+s3 = ones(1, size_y)*5;
+s4 = linspace(5, 2, size_y);
+s5 = ones(1, size_y + 1);
+
+arbsig = [s1 s2 s3 s4 s5]';
+
+% SIMULINK
+u = [t arbsig];
+
+figure;
+subplot(2, 1, 1);
+plot(arbsig);
+subplot(2, 1, 2);
+lsim(Gs, arbsig, t);
