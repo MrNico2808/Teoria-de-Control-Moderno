@@ -1,0 +1,69 @@
+clc; clear;
+
+%Ganancia de OL
+K=1;
+%Declaracion de bloques
+G1 = tf(K, [1 0]);
+G2 = tf(1, [1 1]);
+G3 = tf([1 3], [1 4 16]);
+H1 = 1;
+%OL
+G = series(series(G1, G2), G3);
+num = G.Numerator{1};
+den = G.Denominator{1};
+%Obtencion de ceros y polos
+ceros = roots(den);
+poles = roots(num);
+
+figure;
+v = [-6 6 -6 6]; axis (v); axis('square');
+hold on; grid on;
+plot(real(poles), imag(poles), 'bo');
+plot(real(ceros), imag(ceros), 'rx');
+
+%Centroide de las asintotas
+sigma = (sum(poles) - sum(ceros))/(length(poles) - length(ceros));
+%Ec. Asintotas
+x = sigma:0.1:6;
+y1 = sqrt (3) * (x- sigma);
+y2 = -y1;
+xa = -6:0.1:sigma;
+ya = zeros(1, length(xa));
+%Cortes en eje I
+A = polyfit(x, y1, 1);
+p1 = A(2);
+p2 = -p1;
+
+plot(0, p1, 'kd');
+plot(0, p2, 'kd');
+plot (x, y1, 'k-.');
+plot (x, y2, 'k-.');
+plot (xa, ya, 'k-.');
+
+%Derivar K mediante SYM
+k = -1/series(G, H1); %De la EC
+syms s;
+k_num_sym = poly2sym(k.Numerator{1}, s);
+k_den_sym = poly2sym(k.Denominator{1}, s);
+k_sym = k_num_sym/k_den_sym;
+dk_sym = numden(diff(k_sym, s)); %Reduce a un polinomio en num y den
+dk = sym2poly(dk_sym);
+%Puntos de llegada
+raices = roots(dk);
+raices_real = raices(imag(raices) == 0);
+
+plot(raices_real, zeros(1, length(raices_real)), 'go');
+rlocus(feedback(G, H1));
+xlim([-6, 6]);
+ylim([-6, 6]);
+
+%Tabla de Routh s2, s1 y s0
+syms k;
+s1_num_sym = poly2sym([1 7 -1344], k);
+s1_den_sym = poly2sym([-1 84], k);
+s1_sym = numden(s1_num_sym/s1_den_sym);
+s1 = sym2poly(s1_sym);
+K_roots = roots(s1);
+K = K_roots(K_roots > 0); %Condicion de s0
+%Cortes en eje I
+s12 = [(84-K)/5 0 3*K]
