@@ -1,0 +1,34 @@
+clear; clc;
+
+R = 100;
+L = 112.54e-3;
+C = 22.5e-6;
+
+num = [L*C 0 0];
+den = [L*C R*C 1];
+G = tf(num, den);
+
+N = 1000;
+w = logspace(-1, 10, N);
+
+s = 1i*w;
+
+syms u;
+G_sym = poly2sym(num, u)/poly2sym(den, u);
+P = freqresp(G, s);
+
+    
+figure;
+subplot(2,1,1);
+semilogx(w./(2*pi), P_mag, 'b-', 'LineWidth', 2);
+grid on;
+xlabel('Frecuencia [Hz]');
+ylabel('Amplitud [dB]');
+title('Diagrama de Bode en MAGNITUD');
+
+subplot(2,1,2);
+semilogx(w./(2*pi), P_ph, 'r-', 'LineWidth', 2);
+grid on;
+xlabel('Frecuencia [Hz]');
+ylabel('Magnitud Fase [dB]');
+title('Diagrama de Bode en FASE');
